@@ -79,25 +79,21 @@
 					<div class="title"></div>
 					<div class="result"></div>
 					<div class="time"></div>
-					<div class="points"></div>
 				</li>
 				<li id="r_1">
 					<div class="title"></div>
 					<div class="result"></div>
 					<div class="time"></div>
-					<div class="points"></div>
 				</li>
 				<li id="r_2">
 					<div class="title"></div>
 					<div class="result"></div>
 					<div class="time"></div>
-					<div class="points"></div>
 				</li>
 				<li id="r_3">
 					<div class="title"></div>
 					<div class="result"></div>
 					<div class="time"></div>
-					<div class="points"></div>
 				</li>
 			</ul>
 		</li>
@@ -297,7 +293,7 @@
 				var res = parseInt(teams_list.list[x].result);
 				if(res > 0) {
 					var times = parseInt(teams_list.list[x].times);
-					var val = (questions_list.length - res) * 60 + (res * times);
+					var val = (questions_list.length - res) * 100 + (res * times);
 					results.push({
 						jObj : teams_list.list[x].jObject,
 						points : val
@@ -311,7 +307,7 @@
 			while(results.length > 0) {
 				var min = 99999, min_j = null, min_x = 9;
 				for(x in results) {
-					if(results[x].res < min) {
+					if(results[x].points < min) {
 						min_j = results[x].jObj;
 						min = results[x].points;
 						min_x = x;
