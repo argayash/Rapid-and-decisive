@@ -55,10 +55,10 @@
 						<span>&nbsp;</span><b class="notready"></b>
 					</li>
 				</ol>
-				<button class="button" id="we_are_ready" class="">
-					Мы готовы!
-				</button>
 				<div class="align_center">
+					<button class="button" id="we_are_ready" class="">
+						Мы готовы!
+					</button>
 					<button class="button" id="start_game">
 						Начать игру!
 					</button>
@@ -79,21 +79,25 @@
 					<div class="title"></div>
 					<div class="result"></div>
 					<div class="time"></div>
+					<div class="points"></div>
 				</li>
 				<li id="r_1">
 					<div class="title"></div>
 					<div class="result"></div>
 					<div class="time"></div>
+					<div class="points"></div>
 				</li>
 				<li id="r_2">
 					<div class="title"></div>
 					<div class="result"></div>
 					<div class="time"></div>
+					<div class="points"></div>
 				</li>
 				<li id="r_3">
 					<div class="title"></div>
 					<div class="result"></div>
 					<div class="time"></div>
+					<div class="points"></div>
 				</li>
 			</ul>
 		</li>
@@ -122,11 +126,11 @@
 					"team_id" : this.id
 				}, function(dat) {
 					for(x in teams_list.list) {
-						if(teams_list.list[x].id == dat.id) {
+						if(parseInt(teams_list.list[x].id) == dat.id) {
 							teams_list.list[x].result = dat.result;
 							teams_list.list[x].times = dat.times;
 							teams_list.list[x].jObject.children(".result").html(dat.result);
-							if(dat.times > 0) {
+							if(parseInt(dat.times) > 0) {
 								teams_list.list[x].finish = true;
 								finish_count++;
 								teams_list.list[x].jObject.children(".time").html(dat.times + " c.");
@@ -221,6 +225,7 @@
 			}
 			if(opponents_count == 3) {
 				clearInterval(opponent_int);
+				$("#we_are_ready").fadeIn("normal");
 			}
 		}, "json").error(function(dat) { alert(dat.Errors);
 		})
@@ -287,6 +292,36 @@
 			}
 		} else {
 			clearInterval(result_int);
+			var results = [];
+			for(x in teams_list.list) {
+				var res = parseInt(teams_list.list[x].result);
+				if(res > 0) {
+					var times = parseInt(teams_list.list[x].times);
+					var val = (questions_list.length - res) * 60 + (res * times);
+					results.push({
+						jObj : teams_list.list[x].jObject,
+						points : val
+					});
+				} else {
+					teams_list.list[x].jObject.css("background", "#C83737");
+				}
+			}
+			var ci = 0;
+			var colors = ["#1BAE44", "#AADA2B", "#FFD332", "#FF7F2A"];
+			while(results.length > 0) {
+				var min = 99999, min_j = null, min_x = 9;
+				for(x in results) {
+					if(results[x].res < min) {
+						min_j = results[x].jObj;
+						min = results[x].points;
+						min_x = x;
+					}
+				}
+				min_j.css("background", colors[ci]);
+				ci++;
+				results.splice(min_x, 1);
+			}
+
 		}
 	}
 
@@ -296,7 +331,6 @@
 			var jqxhr = newTeam(title, theme.id);
 			jqxhr.success(function() {
 				if(our_team.id != 0) {
-					teams_list.list.push(our_team);
 					$("#create_form").fadeOut("normal");
 					$(".step_1_1 h2 span").html(our_team.title);
 					$(".step_1_1").fadeIn("normal");

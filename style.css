@@ -365,4 +365,7 @@ body {
 	padding: 10px;
 	margin: 0 0 10px;
 }
+#we_are_ready {
+	display: none;
+}
 
