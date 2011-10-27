@@ -1,16 +1,31 @@
+<?
+//if (preg_match("/^[a-zA-Z0-9_]{4,50}$/", trim($_GET["theme"]))) {
+?>
 <div class="head">
 	<div class="hgroup">
-		<h1>Создание интерактивной игры</h1>
+		<h1>Интерактивная игра</h1>
+		<h2><?
+		require_once "db.php";
+		$result = mysql_query("select `id`,`title`,`description` from `themes` where `href`='" . trim($_GET["theme"]) . "'");
+		$row = mysql_fetch_array($result);
+		echo $row["title"];
+		?></h2>
+		<div id="theme_id" class="<? echo $row["id"];?>"></div>
+		<div id="theme_description">
+			<?
+			echo $row["description"];
+			?>
+		</div>
 	</div>
 	<ol>
 		<li class="enable active">
-			<span>Спланируйте мероприятие</span>
+			<span>Регистрация команды</span>
 		</li>
 		<li class="disable">
-			<span>Напишите вопросы</span>
+			<span>Отвечайте на вопросы</span>
 		</li>
 		<li class="disable">
-			<span>Проведите игру</span>
+			<span>Каков результат?</span>
 		</li>
 	</ol>
 </div>
@@ -18,19 +33,35 @@
 	<ul class="steps">
 		<li class="step_1">
 			<form id="create_form" class="input_form" method="post">
-				<label for="title">название игры:</label>
+				<label for="title">название команды:</label>
 				<div class="input_wrap">
 					<input type="text" class="big" name="title" id="title"/>
 				</div>
-				<label for="description">описание:</label>
-				<div class="input_wrap" id="dop">
-					<textarea name="description" id="description"></textarea>
-					<input class="normal" id="fileupload" type="file" name="files[]" multiple>
-				</div>
 				<button>
-					Создать игру!
+					Зарегистрировать команду!
 				</button>
 			</form>
+			<div class="step_1_1">
+				<h2><span></span>, добро пожаловать на игру!</h2>
+				<h2>Ваши соперники:</h2>
+				<ol id="opponents">
+					<li class="t_0">
+						<span>&nbsp;</span><b class="notready"></b>
+					</li>
+					<li class="t_1">
+						<span>&nbsp;</span><b class="notready"></b>
+					</li>
+					<li class="t_2">
+						<span>&nbsp;</span><b class="notready"></b>
+					</li>
+				</ol>
+				<button class="button" id="we_are_ready" class="">
+					Мы готовы!
+				</button>
+				<div class="align_center">
+					<button class="button" id="start_game"></button>
+				</div>
+			</div>
 		</li>
 		<li class="step_2">
 			<h2>Создание вопросов для игры: <span id="step2_title"></span></h2>
@@ -80,20 +111,24 @@
 </div>
 <div id="template_answer" class="template"></div>
 <script type="text/javascript">
+	Theme = function() {
+		this.id = 0;
+		this.getId = function() {
+			this.id = $("#theme_id").attr("class");
+		}
+	}
 	Team = function() {
-		this.Id = 0;
+		this.id = 0;
+		this.title = "";
 		this.times = 0;
 		this.result = 0;
-		this.ready = 0;
-		this.title = 0;
-		this.newTeam = function() {
+		this.ready = false;
+		this.finish = false;
+		this.startGame = function() {
 
 		}
-		this.startGame = function() {
-			
-		}
 		this.finishGame = function() {
-			
+
 		}
 		this.getResult = function() {
 
@@ -103,5 +138,111 @@
 	}
 	Teams = function() {
 		this.our_team = 0;
+		this.list = [];
+
 	}
+	/*GLOBAL VARS*/
+	var theme = new Theme();
+	theme.getId();
+	var our_team = new Team();
+	var teams_list = new Teams();
+	var opponents_list = [];
+	var opponent_int, result_int;
+	/*jQuery opp*/
+	newTeam = function(title, theme_id) {
+		var jqxhr = $.post("backend/route.php", {
+			"type" : "Teams",
+			"cmd" : "new_team",
+			"title" : title,
+			"theme_id" : theme_id
+		}, function(dat) {
+			our_team.id = dat.Id;
+			our_team.title = dat.Title;
+		}, "json").error(function(dat) { alert(dat.Errors);
+		})
+		return jqxhr
+	}
+	function getLen(a) {
+		var c = 0;
+		for(i in a) {
+			if(a[i] != undefined)
+				c++;
+		}
+		return c
+	}
+
+	function loadOpp() {
+		var jqxhr = $.post("backend/route.php", {
+			"type" : "Teams",
+			"cmd" : "get_opponents",
+			"team_id" : our_team.id,
+			"theme_id" : theme.id
+		}, function(dat) {
+			var c = 0;
+			for(x in dat) {
+				opponents_list[x] = dat[x];
+				$("#opponents").children(".t_" + c).children("span").html(dat[x]);
+				c++;
+			}
+			if(c == 3) {
+				clearInterval(opponent_int);
+			}
+		}, "json").error(function(dat) { alert(dat.Errors);
+		})
+	}
+
+
+	$("#create_form").submit(function() {
+		var title = $("#title").val();
+		if(title) {
+			var jqxhr = newTeam(title, theme.id);
+			jqxhr.success(function() {
+				if(our_team.id != 0) {
+					teams_list.list.push(our_team);
+					$("#create_form").fadeOut("normal");
+					$(".step_1_1 h2 span").html(our_team.title);
+					$(".step_1_1").fadeIn("normal");
+					loadOpp();
+					if(getLen(opponents_list) < 3) {
+						opponent_int = setInterval(function() {
+							loadOpp();
+						}, 5000);
+					}
+				} else {
+					alert("В регистрации временно отказано!");
+				}
+			})
+		} else {
+			$(".input_wrap").css("background", "#3474AC");
+		}
+		return false;
+	})
+
+	$("#we_are_ready").click(function() {
+		var jqxhr = $.post("backend/route.php", {
+			"type" : "Teams",
+			"cmd" : "team_ready",
+			"team_id" : our_team.id
+		}, function(dat) {
+
+		}, "json").error(function(dat) { alert(dat.Errors);
+		}).success(function() {
+			$(".step_1_1 h2 span").css("color", "#337B00");
+		})
+	});
+
 </script>
+<?
+/*}
+ else {
+ ?>
+ <div class="head">
+ <div class="hgroup">
+ <h1>Неа, нет такой игры!</h1>
+ <h2> досвидушечки.... </h2>
+ </div>
+ </div>
+ <? }
+ *
+ */
+?>

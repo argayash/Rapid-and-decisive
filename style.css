@@ -64,6 +64,14 @@ body {
 	text-align: center;
 	text-shadow: -1px -1px 1px #777;
 }
+#theme_description {
+	color: #222222;
+	font-size: 18px;
+	margin: 20px auto;
+	padding: 10px;
+	text-shadow: 1px 1px 0 #FFFFFF;
+	width: 80%;
+}
 #theme_id {
 	display: none;
 }
@@ -76,6 +84,9 @@ body {
 	color: #8B2B00;
 	text-decoration: underline;
 }
+/*
+ * 337B00
+ */
 .main h3 {
 	background: none repeat scroll 0 0 #B9AE83;
 	font-size: 22px;
@@ -197,7 +208,7 @@ body {
 	text-shadow: 0 0 2px #FFFFFF;
 	width: 260px;
 }
-.input_form button:active {
+.input_form button:active, .button:active {
 	background: #eeeeee !important;
 }
 .answer_form {
