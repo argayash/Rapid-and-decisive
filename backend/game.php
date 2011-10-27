@@ -64,21 +64,26 @@
 			</div>
 		</li>
 		<li class="step_2">
-			<h2>Создание вопросов для игры: <span id="step2_title"></span></h2>
-			<ol id="qw_list" class="questions_list"></ol>
-			<form id="create_question" class="input_form" method="post">
-				<label for="question_title">текст вопроса:</label>
-				<div class="input_wrap">
-					<input type="text" class="normal" name="question_title" id="question_title"/>
-					<input class="normal" id="question_upload" type="file" name="files[]" multiple>
-				</div>
-				<button>
-					Добавить вопрос!
-				</button>
-			</form>
-			<button id="on_step3" class="button">
-				Дальше...
-			</button>
+			<div id="current_question">
+				<h3>sadsd</h3>
+				<ol class="answers">
+					<li>
+						asdsd
+					</li>
+					<li>
+						asd
+					</li>
+					<li>
+						asd
+					</li>
+					<li>
+						asd
+					</li>
+				</ol>
+			</div>
+			<div class="hint">
+				asdsad
+			</div>
 		</li>
 		<li class="step_3">
 			<ul class="href_block">
@@ -139,7 +144,24 @@
 	Teams = function() {
 		this.our_team = 0;
 		this.list = [];
-
+	}
+	Question = function(id, title) {
+		this.id = id;
+		this.title = title;
+		this.getAnswers = function() {
+			var jqxhr = $.post("backend/route.php", {
+				"type" : "Answer",
+				"cmd" : "get_list_answers",
+				"question_id" : this.id
+			}, function(dat) {
+				var app = "";
+				for(x in dat) {
+					app += "<li id='" + dat[x].Id + "'>" + dat[x].Title + "</li>";
+				}
+				$(".answers").html(app);
+			}, "json").error(function(dat) { alert(dat.Errors);
+			})
+		}
 	}
 	/*GLOBAL VARS*/
 	var theme = new Theme();
@@ -147,6 +169,8 @@
 	var our_team = new Team();
 	var teams_list = new Teams();
 	var opponents_list = [];
+	var questions_list = [];
+	var qurrent_question = 0;
 	var opponent_int, result_int, ready_int;
 	/*jQuery opp*/
 	newTeam = function(title, theme_id) {
@@ -212,9 +236,13 @@
 		}
 		if(who == 3) {
 			clearInterval(ready_int);
+			$("#start_game").fadeIn("normal");
 		}
 	}
 
+	set_question = function() {
+
+	}
 
 	$("#create_form").submit(function() {
 		var title = $("#title").val();
@@ -243,12 +271,13 @@
 	})
 
 	$("#we_are_ready").click(function() {
+
 		var jqxhr = $.post("backend/route.php", {
 			"type" : "Teams",
 			"cmd" : "team_ready",
 			"team_id" : our_team.id
 		}, function(dat) {
-
+			$("#we_are_ready").fadeOut("normal");
 		}, "json").error(function(dat) { alert(dat.Errors);
 		}).success(function() {
 			$(".step_1_1 h2 span").css("color", "#337B00");
@@ -259,6 +288,31 @@
 		})
 	});
 
+	$("#start_game").click(function() {
+		var jqxhr = $.post("backend/route.php", {
+			"type" : "Teams",
+			"cmd" : "start_game",
+			"team_id" : our_team.id
+		}, function(dat) {
+			$("#we_are_ready").fadeOut("normal");
+		}, "json").error(function(dat) { alert(dat.Errors);
+		}).success(function() {
+			var jqxhr = $.post("backend/route.php", {
+				"type" : "Question",
+				"cmd" : "get_list_questions",
+				"theme_id" : theme.id
+			}, function(dat) {
+				for(x in dat) {
+					questions_list.push(new Question(dat[x].Id, dat[x].Title))
+				}
+
+			}, "json").error(function(dat) { alert(dat.Errors);
+			}).success(function() {
+				$(".active").removeClass("active");
+				$(".disable:first").attr("class", "enable active");
+			})
+		})
+	})
 </script>
 <?
 /*}
