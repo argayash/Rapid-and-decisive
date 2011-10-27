@@ -34,42 +34,43 @@ table {
  END RESET
  */
 body {
-	background: #444;
+	background: url("images/cubes.png") repeat scroll 0 0 transparent;
 	font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
 }
 .wrap {
 	max-width: 1200px;
 	margin: 0 auto;
 	min-height: 200px;
-	background: #F6E497;
+	background: url("images/crosses.png") repeat scroll 0 0 transparent;
 	padding: 0 0 50px;
 	box-shadow: 0 0 5px #222222;
 }
 .head {
 }
 .head .hgroup {
-	border-bottom: 2px solid #A07931;
+	background: url("images/carbon_fibre.png") repeat scroll 0 0 transparent;
+	border-bottom: 2px solid #00585F;
 }
 .head h1 {
-	color: #BD8D46;
+	color: #009393;
 	font-size: 50px;
 	padding: 10px;
 	text-align: center;
 	text-shadow: -1px -1px 1px #555555;
 }
 .head h2 {
-	color: #BD8D46;
+	color: #FFFCC4;
 	font-size: 40px;
 	padding: 5px;
 	text-align: center;
 	text-shadow: -1px -1px 1px #777;
 }
 #theme_description {
-	color: #222222;
+	border-top: 1px solid;
+	color: #F0EDBB;
 	font-size: 18px;
 	margin: 20px auto;
-	padding: 10px;
-	text-shadow: 1px 1px 0 #FFFFFF;
+	padding: 20px 10px 0;
 	width: 80%;
 }
 #theme_id {
@@ -88,11 +89,18 @@ body {
  * 337B00
  */
 .main h3 {
-	background: none repeat scroll 0 0 #B9AE83;
+	background: url("images/rubber_grip.png") repeat scroll 0 0 transparent;
+	box-shadow: -1px 0 3px #000000;
+	color: #ecedec;
 	font-size: 22px;
 	margin: 10px 0;
 	padding: 10px;
-	box-shadow: -1px 0 3px #000000;
+}
+.main h3 img {
+	display: block;
+	margin: 5px;
+	max-width: 600px;
+	max-height: 400px;
 }
 .head ol {
 	height: 30px;
@@ -134,7 +142,7 @@ body {
 }
 .input_form {
 	padding-bottom: 20px;
-	border-bottom: 1px solid #A07931;
+	border-bottom: 1px solid #00585F;
 }
 .input_form label {
 	color: #222222;
@@ -143,7 +151,7 @@ body {
 	width: 90%;
 }
 .input_form .input_wrap {
-	background: none repeat scroll 0 0 #888888;
+	background: none repeat scroll 0 0 #777;
 	border: 5px solid transparent;
 	box-shadow: 0 0 5px #000000;
 	margin: 0 auto 25px;
@@ -278,7 +286,17 @@ body {
 	margin: 15px auto;
 }
 .step_1_1 ol li {
-	background: none repeat scroll 0 0 #F6D597;
+
+	background-color: #FFFCC4;
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFCC4), to(#F0E4BB));
+	background-image: -webkit-linear-gradient(top, #FFFCC4, #F0E4BB);
+	background-image: -moz-linear-gradient(top, #FFFCC4, #F0E4BB);
+	background-image: -ms-linear-gradient(top, #FFFCC4, #F0E4BB);
+	background-image: -o-linear-gradient(top, #FFFCC4, #F0E4BB);
+	background-image: linear-gradient(top, #FFFCC4, #F0E4BB);
+	filter: progid :DXImageTransform.Microsoft.gradient(startColorStr='#FFFCC4', EndColorStr='#F0E4BB');
+	border: 1px solid #999999;
+	border-radius: 3px;
 	box-shadow: 0 0 3px #444444;
 	margin: 10px 0;
 	padding: 10px;
@@ -330,7 +348,7 @@ body {
 	width: 60%;
 	padding: 10px;
 	margin: 10px auto;
-	color: #A36540;
+	color: #00585F;
 	opacity: 0.9;
 }
 .step_3 .offset {
@@ -343,15 +361,21 @@ body {
 	width: 290px;
 	height: 290px;
 	margin: 5px;
+	box-shadow: 0 2px 5px #333333;
 	background: #FCFAE1;
 	box-shadow: 0 0 3px #555;
 	float: left;
+	border-radius: 5px 5px 5px 5px;
 }
 .step_3 .offset li .title {
-	font-size: 18px;
-	text-align: center;
-	padding: 10px;
+	color: #222222;
+	font-size: 80px;
+	font-weight: bold;
+	line-height: 150px;
 	margin: 0 0 10px;
+	padding: 10px;
+	text-align: center;
+	text-shadow: 1px 1px 0 #CCCCCC;
 }
 .step_3 .offset li .result {
 	font-size: 36px;
