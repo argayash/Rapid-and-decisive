@@ -114,6 +114,29 @@
 		this.result = 0;
 		this.finish = false;
 		this.jObject = null;
+		this.getResult = function() {
+			if(!this.finish) {
+				var jqxhr = $.post("backend/route.php", {
+					"type" : "Teams",
+					"cmd" : "result_team",
+					"team_id" : this.id
+				}, function(dat) {
+					for(x in teams_list.list) {
+						if(teams_list.list[x].id == dat.id) {
+							teams_list.list[x].result = dat.result;
+							teams_list.list[x].times = dat.times;
+							teams_list.list[x].jObject.children(".result").html(dat.result);
+							if(dat.times > 0) {
+								teams_list.list[x].finish = true;
+								finish_count++;
+								teams_list.list[x].jObject.children(".time").html(dat.times + " c.");
+							}
+						}
+					}
+				}, "json").error(function(dat) { alert(dat.Errors);
+				})
+			}
+		}
 	}
 	Teams = function() {
 		this.our_team = 0;
@@ -145,10 +168,12 @@
 	var our_team = new Team();
 	var teams_list = new Teams();
 	var opponents_list = [];
+	var oppon_object_list = new Teams();
+	var opponents_count = 0;
 	var questions_list = [];
 	var qurrent_question = 0;
 	var opponent_int, result_int, ready_int;
-	var ready_count = 0;
+	var ready_count = 0, finish_count = 0;
 	var hints = ["Ну быстрее же!", "А быстрее можете?", "Правильного ответа здесь нет)", "Правильный ответ №2", "Правильный ответ №1", "Правильный ответ №3", "Последний ответ правильный!", "Ну вооот...", "Ну ведь не правильно же ответили..."];
 	/*jQuery opp*/
 	newTeam = function(title, theme_id) {
@@ -182,12 +207,19 @@
 		}, function(dat) {
 			var c = 0;
 			for(x in dat) {
-				opponents_list.push(x);
-				$("#opponents").children(".t_" + c).children("span").html(dat[x]);
-				$("#opponents").children(".t_" + c).attr("id", "te_" + x);
+				if(jQuery.inArray(x, opponents_list) < 0) {
+					opponents_list.push(x);
+					var opp = new Team();
+					opp.id = x;
+					opp.title = dat[x];
+					oppon_object_list.list.push(opp);
+					$("#opponents").children(".t_" + c).children("span").html(dat[x]);
+					$("#opponents").children(".t_" + c).attr("id", "te_" + x);
+					opponents_count++;
+				}
 				c++;
 			}
-			if(c == 3) {
+			if(opponents_count == 3) {
 				clearInterval(opponent_int);
 			}
 		}, "json").error(function(dat) { alert(dat.Errors);
@@ -220,23 +252,41 @@
 			}
 			questions_list[qurrent_question].getAnswers();
 		} else {
-			our_team.finish = true;
+			our_team.jObject = $("#r_0");
+			our_team.jObject.children(".title").html(our_team.title);
 			teams_list.list.push(our_team);
-			for(x in opponents_list) {
+			for(x in oppon_object_list.list) {
 				var opp = new Team();
-				opp.id = x;
-				opp.title = opponents_list[x];
+				opp.id = oppon_object_list.list[x].id;
+				opp.title = oppon_object_list.list[x].title;
+				var n = parseInt(x) + 1;
+				opp.jObject = $("#r_" + n);
+				opp.jObject.children(".title").html(opp.title);
 				teams_list.list.push(opp);
 			}
 			$(".step_2").fadeOut("normal");
+			$(".step_3").fadeIn("normal");
+			$(".active").removeClass("active");
+			$(".disable:first").attr("class", "enable active");
 			var jqxhr = $.post("backend/route.php", {
 				"type" : "Teams",
 				"cmd" : "finish_game",
 				"team_id" : our_team.id
 			}, function(dat) {
-
+				result_int = setInterval(function() {
+					get_all_results();
+				}, 5000);
 			}, "json").error(function(dat) { alert(dat.Errors);
 			})
+		}
+	}
+	get_all_results = function() {
+		if(finish_count < teams_list.list.length) {
+			for(x in teams_list.list) {
+				teams_list.list[x].getResult();
+			}
+		} else {
+			clearInterval(result_int);
 		}
 	}
 
