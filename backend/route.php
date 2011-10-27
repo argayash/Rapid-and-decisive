@@ -56,7 +56,12 @@ if (!empty($type)) {
 						print json_encode($obj -> getOpponents($_POST["team_id"], $_POST["theme_id"]));
 						break;
 					case "get_ready" :
-						print json_encode(array("result" => $obj -> getReady($_POST["team_id"])));
+						$ready = intval($obj -> getReady($_POST["team_id"]));
+						if ($ready == 1)
+							$ready = $_POST["team_id"];
+						else
+							$ready = 0;
+						print json_encode(array("result" => $ready));
 						break;
 					case "team_ready" :
 						print json_encode(array("result" => $obj -> teamReady($_POST["team_id"])));

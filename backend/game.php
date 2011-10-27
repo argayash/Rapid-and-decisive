@@ -59,30 +59,19 @@
 					Мы готовы!
 				</button>
 				<div class="align_center">
-					<button class="button" id="start_game"></button>
+					<button class="button" id="start_game">
+						Начать игру!
+					</button>
 				</div>
 			</div>
 		</li>
 		<li class="step_2">
 			<div id="current_question">
 				<h3>sadsd</h3>
-				<ol class="answers">
-					<li>
-						asdsd
-					</li>
-					<li>
-						asd
-					</li>
-					<li>
-						asd
-					</li>
-					<li>
-						asd
-					</li>
-				</ol>
+				<ol class="answers"></ol>
 			</div>
 			<div class="hint">
-				asdsad
+				
 			</div>
 		</li>
 		<li class="step_3">
@@ -149,6 +138,7 @@
 		this.id = id;
 		this.title = title;
 		this.getAnswers = function() {
+			$(".step_2 h3").html(this.title);
 			var jqxhr = $.post("backend/route.php", {
 				"type" : "Answer",
 				"cmd" : "get_list_answers",
@@ -156,9 +146,9 @@
 			}, function(dat) {
 				var app = "";
 				for(x in dat) {
-					app += "<li id='" + dat[x].Id + "'>" + dat[x].Title + "</li>";
+					app += "<li id='" + x + "'>" + dat[x] + "</li>";
 				}
-				$(".answers").html(app);
+				$(".step_2 .answers").html(app);
 			}, "json").error(function(dat) { alert(dat.Errors);
 			})
 		}
@@ -172,6 +162,7 @@
 	var questions_list = [];
 	var qurrent_question = 0;
 	var opponent_int, result_int, ready_int;
+	var ready_count = 0;
 	/*jQuery opp*/
 	newTeam = function(title, theme_id) {
 		var jqxhr = $.post("backend/route.php", {
@@ -204,9 +195,9 @@
 		}, function(dat) {
 			var c = 0;
 			for(x in dat) {
-				opponents_list[x] = dat[x];
+				opponents_list.push(x);
 				$("#opponents").children(".t_" + c).children("span").html(dat[x]);
-				$("#opponents").children(".t_" + c).attr("id", x);
+				$("#opponents").children(".t_" + c).attr("id", "te_" + x);
 				c++;
 			}
 			if(c == 3) {
@@ -217,31 +208,29 @@
 	}
 
 	function readyOpp() {
-		var c = 0, who = 0;
-		for(x in opponents_list) {
-			if(opponents_list[x] != undefined) {
+		for(var i = 0; i < opponents_list.length; i++) {
+			//alert(opponents_list[i]);
+			if(opponents_list[i] != undefined) {
 				var jqxhr = $.post("backend/route.php", {
 					"type" : "Teams",
 					"cmd" : "get_ready",
-					"team_id" : x
+					"team_id" : opponents_list[i]
 				}, function(dat) {
-					if(parseInt(dat.result) == 1) {
-						who++;
-						$("#" + x).children("b").attr("class", "isready");
+					if(parseInt(dat.result) > 0) {
+						ready_count++;
+						$("#te_" + dat.result).children("b").attr("class", "isready");
 					}
-					c++;
 				}, "json").error(function(dat) { alert(dat.Errors);
 				})
 			}
 		}
-		if(who == 3) {
-			clearInterval(ready_int);
-			$("#start_game").fadeIn("normal");
-		}
 	}
 
 	set_question = function() {
-
+		if(qurrent_question < questions_list.length) {
+			questions_list[qurrent_question].getAnswers();
+			qurrent_question++;
+		}
 	}
 
 	$("#create_form").submit(function() {
@@ -283,8 +272,15 @@
 			$(".step_1_1 h2 span").css("color", "#337B00");
 			readyOpp();
 			ready_int = setInterval(function() {
+				if(ready_count == 3) {
+					clearInterval(ready_int);
+					$("#start_game").fadeIn("normal");
+				} else {
+					ready_count = 0;
+				}
 				readyOpp();
-			}, 5000);
+
+			}, 8000);
 		})
 	});
 
@@ -303,9 +299,11 @@
 				"theme_id" : theme.id
 			}, function(dat) {
 				for(x in dat) {
-					questions_list.push(new Question(dat[x].Id, dat[x].Title))
+					questions_list.push(new Question(x, dat[x]))
 				}
-
+				set_question();
+				$(".step_1").fadeOut("normal");
+				$(".step_2").fadeIn("normal");
 			}, "json").error(function(dat) { alert(dat.Errors);
 			}).success(function() {
 				$(".active").removeClass("active");
