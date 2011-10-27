@@ -40,7 +40,7 @@ if (!empty($type)) {
 						print json_encode($obj -> getListAnswers($_POST["question_id"]));
 						break;
 					case "reply" :
-						print json_encode($obj -> Reply($_POST["answer_id"], $_POST["team_id"], $_POST["question_id"]));
+						print json_encode(array("result" => $obj -> Reply($_POST["answer_id"], $_POST["team_id"], $_POST["question_id"])));
 						break;
 				}
 			}

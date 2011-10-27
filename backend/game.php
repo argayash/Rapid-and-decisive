@@ -70,40 +70,36 @@
 				<h3>sadsd</h3>
 				<ol class="answers"></ol>
 			</div>
-			<div class="hint">
-				
-			</div>
+			<div class="hint"></div>
 		</li>
 		<li class="step_3">
-			<ul class="href_block">
-				<li class="game">
-					<a href="">Начать игру</a><span></span>
+			<h2>Результат игры:</h2>
+			<ul class="offset">
+				<li id="r_0">
+					<div class="title"></div>
+					<div class="result"></div>
+					<div class="time"></div>
 				</li>
-				<li class="result">
-					<a href="">Результаты игры</a><span></span>
+				<li id="r_1">
+					<div class="title"></div>
+					<div class="result"></div>
+					<div class="time"></div>
+				</li>
+				<li id="r_2">
+					<div class="title"></div>
+					<div class="result"></div>
+					<div class="time"></div>
+				</li>
+				<li id="r_3">
+					<div class="title"></div>
+					<div class="result"></div>
+					<div class="time"></div>
 				</li>
 			</ul>
 		</li>
 	</ul>
 </div>
 <div class="footer"></div>
-<div id="template_question" class="template">
-	<h3></h3>
-	<ol class="answers"></ol>
-	<div class="answer_form">
-		<label>ответ:</label>
-		<input type="text" class="answer_title" name="answer" class="small"/>
-		<input class="answer_file" type="file" name="files[]" multiple>
-		<select class="answer_right">
-			<option value="0">Неверный</option>
-			<option value="1">Верный</option>
-		</select>
-		<button class="add_answer">
-			Добавить ответ
-		</button>
-	</div>
-</div>
-<div id="template_answer" class="template"></div>
 <script type="text/javascript">
 	Theme = function() {
 		this.id = 0;
@@ -116,19 +112,8 @@
 		this.title = "";
 		this.times = 0;
 		this.result = 0;
-		this.ready = false;
 		this.finish = false;
-		this.startGame = function() {
-
-		}
-		this.finishGame = function() {
-
-		}
-		this.getResult = function() {
-
-		}
 		this.jObject = null;
-
 	}
 	Teams = function() {
 		this.our_team = 0;
@@ -139,6 +124,7 @@
 		this.title = title;
 		this.getAnswers = function() {
 			$(".step_2 h3").html(this.title);
+			$(".step_2 .answers").html();
 			var jqxhr = $.post("backend/route.php", {
 				"type" : "Answer",
 				"cmd" : "get_list_answers",
@@ -163,6 +149,7 @@
 	var qurrent_question = 0;
 	var opponent_int, result_int, ready_int;
 	var ready_count = 0;
+	var hints = ["Ну быстрее же!", "А быстрее можете?", "Правильного ответа здесь нет)", "Правильный ответ №2", "Правильный ответ №1", "Правильный ответ №3", "Последний ответ правильный!", "Ну вооот...", "Ну ведь не правильно же ответили..."];
 	/*jQuery opp*/
 	newTeam = function(title, theme_id) {
 		var jqxhr = $.post("backend/route.php", {
@@ -228,8 +215,28 @@
 
 	set_question = function() {
 		if(qurrent_question < questions_list.length) {
+			if(qurrent_question > 0) {
+				$(".step_2 .hint").html(hints[Math.floor(hints.length * Math.random())])
+			}
 			questions_list[qurrent_question].getAnswers();
-			qurrent_question++;
+		} else {
+			our_team.finish = true;
+			teams_list.list.push(our_team);
+			for(x in opponents_list) {
+				var opp = new Team();
+				opp.id = x;
+				opp.title = opponents_list[x];
+				teams_list.list.push(opp);
+			}
+			$(".step_2").fadeOut("normal");
+			var jqxhr = $.post("backend/route.php", {
+				"type" : "Teams",
+				"cmd" : "finish_game",
+				"team_id" : our_team.id
+			}, function(dat) {
+
+			}, "json").error(function(dat) { alert(dat.Errors);
+			})
 		}
 	}
 
@@ -309,6 +316,21 @@
 				$(".active").removeClass("active");
 				$(".disable:first").attr("class", "enable active");
 			})
+		})
+	})
+	$(".answers li").live("click", function() {
+		var jqxhr = $.post("backend/route.php", {
+			"type" : "Answer",
+			"cmd" : "reply",
+			"answer_id" : $(this).attr("id"),
+			"team_id" : our_team.id,
+			"question_id" : questions_list[qurrent_question].id
+		}, function(dat) {
+			our_team.result = dat.result;
+		}, "json").error(function(dat) { alert(dat.Errors);
+		}).success(function() {
+			qurrent_question++;
+			set_question();
 		})
 	})
 </script>

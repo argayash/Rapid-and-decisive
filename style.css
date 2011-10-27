@@ -339,7 +339,7 @@ body {
 	padding: 10px;
 	margin: 20px auto;
 }
-.step_3 .bl {
+.step_3 .offset li {
 	width: 290px;
 	height: 290px;
 	margin: 5px;
@@ -347,19 +347,19 @@ body {
 	box-shadow: 0 0 3px #555;
 	float: left;
 }
-.step_3 .bl .title {
+.step_3 .offset li .title {
 	font-size: 18px;
 	text-align: center;
 	padding: 10px;
 	margin: 0 0 10px;
 }
-.step_3 .bl .result {
+.step_3 .offset li .result {
 	font-size: 36px;
 	text-align: center;
 	padding: 10px;
 	margin: 0 0 10px;
 }
-.step_3 .bl .time {
+.step_3 .offset li .time {
 	font-size: 28px;
 	text-align: center;
 	padding: 10px;

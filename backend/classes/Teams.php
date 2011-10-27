@@ -145,7 +145,7 @@ class Teams extends Object {
 		$id = intval($id);
 		$result = mysql_query("select `result`, TIMESTAMPDIFF(SECOND, `time_start`, `time_finish`) as `time` from `teams` where `id`='" . $id . "'");
 		$row = mysql_fetch_array($result);
-		return array("result" => $row["result"], "times" => intval($row["time"]));
+		return array("id" => $id, "result" => $row["result"], "times" => intval($row["time"]));
 	}
 
 	public function del_team($id) {
