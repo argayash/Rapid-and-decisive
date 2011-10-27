@@ -147,7 +147,7 @@
 	var our_team = new Team();
 	var teams_list = new Teams();
 	var opponents_list = [];
-	var opponent_int, result_int;
+	var opponent_int, result_int, ready_int;
 	/*jQuery opp*/
 	newTeam = function(title, theme_id) {
 		var jqxhr = $.post("backend/route.php", {
@@ -182,6 +182,7 @@
 			for(x in dat) {
 				opponents_list[x] = dat[x];
 				$("#opponents").children(".t_" + c).children("span").html(dat[x]);
+				$("#opponents").children(".t_" + c).attr("id", x);
 				c++;
 			}
 			if(c == 3) {
@@ -189,6 +190,29 @@
 			}
 		}, "json").error(function(dat) { alert(dat.Errors);
 		})
+	}
+
+	function readyOpp() {
+		var c = 0, who = 0;
+		for(x in opponents_list) {
+			if(opponents_list[x] != undefined) {
+				var jqxhr = $.post("backend/route.php", {
+					"type" : "Teams",
+					"cmd" : "get_ready",
+					"team_id" : x
+				}, function(dat) {
+					if(parseInt(dat.result) == 1) {
+						who++;
+						$("#" + x).children("b").attr("class", "isready");
+					}
+					c++;
+				}, "json").error(function(dat) { alert(dat.Errors);
+				})
+			}
+		}
+		if(who == 3) {
+			clearInterval(ready_int);
+		}
 	}
 
 
@@ -228,6 +252,10 @@
 		}, "json").error(function(dat) { alert(dat.Errors);
 		}).success(function() {
 			$(".step_1_1 h2 span").css("color", "#337B00");
+			readyOpp();
+			ready_int = setInterval(function() {
+				readyOpp();
+			}, 5000);
 		})
 	});
 
